@@ -3,61 +3,59 @@
 #include <algorithm>
 #include <omp.h>
 
-void parallelOddEvenSort(std::vector<int>& arr) {
-    int n = arr.size();
-    bool sorted = false;
+void bubbleSortParallel(std::vector<int>& arr) {
+int n = arr.size();
+bool swapped;
 
-    while (!sorted) {
-        sorted = true;
+for (int i = 0; i < n - 1; i++) {
+    swapped = false;
 
-        // Parallel odd-even comparisons and swaps
-        #pragma omp parallel for shared(arr, sorted)
-        for (int i = 1; i < n - 1; i += 2) {
-            if (arr[i] > arr[i + 1]) {
-                std::swap(arr[i], arr[i + 1]);
-                sorted = false;
-            }
+    // Parallelize the inner loop using OpenMP
+    #pragma omp parallel for shared(arr, swapped)
+    for (int j = 0; j < n - i - 1; j++) {
+        if (arr[j] > arr[j + 1]) {
+            std::swap(arr[j], arr[j + 1]);
+            swapped = true;
         }
+    }
 
-        // Parallel even-odd comparisons and swaps
-        #pragma omp parallel for shared(arr, sorted)
-        for (int i = 0; i < n - 1; i += 2) {
-            if (arr[i] > arr[i + 1]) {
-                std::swap(arr[i], arr[i + 1]);
-                sorted = false;
-            }
-        }
+    // If no swaps were made in the inner loop, the array is already sorted
+    if (!swapped) {
+        break;
     }
 }
 
+}
+
 int main() {
-    int size;
-    std::cout << "Enter the size of the array: ";
-    std::cin >> size;
+int size;
+std::cout << "Enter the size of the array: ";
+std::cin >> size;
 
-    std::vector<int> arr(size);
+std::vector<int> arr(size);
 
-    std::cout << "Enter the elements of the array:\n";
-    for (int i = 0; i < size; i++) {
-        std::cin >> arr[i];
-    }
+std::cout << "Enter the elements of the array:\n";
+for (int i = 0; i < size; i++) {
+    std::cin >> arr[i];
+}
 
-    // Print the original array
-    std::cout << "Original array: ";
-    for (int num : arr) {
-        std::cout << num << " ";
-    }
-    std::cout << std::endl;
+// Print the original array
+std::cout << "Original array: ";
+for (int num : arr) {
+    std::cout << num << " ";
+}
+std::cout << std::endl;
 
-    // Sort the array using parallel odd-even sort
-    parallelOddEvenSort(arr);
+// Sort the array using parallel bubble sort
+bubbleSortParallel(arr);
 
-    // Print the sorted array
-    std::cout << "Sorted array: ";
-    for (int num : arr) {
-        std::cout << num << " ";
-    }
-    std::cout << std::endl;
+// Print the sorted array
+std::cout << "Sorted array: ";
+for (int num : arr) {
+    std::cout << num << " ";
+}
+std::cout << std::endl;
 
-    return 0;
+return 0;
+
 }
